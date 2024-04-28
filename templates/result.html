@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Code</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>Generated Code</h1>
+    </header>
+    <main>
+        <article class="story">
+            <p>{{ code_content }}</p>
+        </article>
+        <button onclick="copyToClipboard()">Copy Code</button>
+    </main>
+    <footer>
+        <p>&copy; 2024 Code Generator. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function copyToClipboard() {
+            var copyText = document.querySelector('.story p');
+            var textarea = document.createElement('textarea');
+            textarea.textContent = copyText.innerText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Code copied to clipboard!');
+        }
+    </script>
+</body>
+
+</html>

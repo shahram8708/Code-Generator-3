@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Generator 3</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Code Generator 3</h1>
+        <p style="padding: 0 10px;">Welcome to our Code Generator! Enter your code prompt below, and specify the programming language you desire. Let our AI-powered engine craft the code for you.</p>
+    </header>
+    <main>
+        <section class="generator">
+            <h2>Generate Code</h2>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            <form action="/search" method="post">
+                <input type="text" name="search_query" placeholder="Enter Code Prompt">
+                <button type="submit">Generate</button>
+            </form>
+        </section>
+        <section class="about">
+            <h2>About</h2>
+            <p>Welcome to our Code Generator! Whether you're looking for inspiration or just want to explore the power of AI-generated Code, you've come to the right place. Simply enter a Code prompt and select your desired programming language, and let our advanced algorithms do the rest.</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Code Generator. All rights reserved.</p>
+    </footer>
+</body>
+</html>
