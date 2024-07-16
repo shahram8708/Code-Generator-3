@@ -1,34 +1,397 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Generator 3</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Code Generator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background-color: #007acc;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+        }
+
+        .header-content h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            padding: 0;
+            margin: 0;
+        }
+
+        .editor-container,
+        .result-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            height: 100%;
+        }
+
+        .editor-container {
+            padding: 20px;
+            background-color: #252526;
+            border-right: 1px solid #3c3c3c;
+        }
+
+        .result-container {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            right: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .copy-button {
+            position: sticky;
+            top: 10px;
+            right: 10px;
+            background-color: #007acc;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+            z-index: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+
+        .copy-button:hover,
+        .copy-button:focus {
+            background-color: #005f99;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .copy-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .run-button {
+            top: 50px;
+            right: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+            z-index: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+
+        .run-button:hover,
+        .run-button:focus {
+            background-color: #218838;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .run-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        textarea {
+            width: 95%;
+            height: 100%;
+            height: 70vh;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            border-radius: 3px;
+            padding: 10px;
+            font-size: 1em;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            resize: none;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #007acc;
+            border-radius: 4px;
+        }
+
+        textarea::-webkit-scrollbar-track {
+            background-color: #2d2d2d;
+        }
+
+        #code_content {
+            height: 100%;
+            height: 69vh;
+            margin: 0 20px;
+            padding: 15px;
+            background-color: #333333;
+            color: #d4d4d4;
+            overflow-y: auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+        }
+
+        .error {
+            color: red;
+            margin: 0 0 0 10px;
+        }
+
+        #code_content:hover {
+            border: 1px solid #007acc;
+        }
+
+        #code_content:focus {
+            border: 1px solid #007acc;
+        }
+
+        #code_content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #code_content::-webkit-scrollbar-thumb {
+            background-color: #007acc;
+            border-radius: 4px;
+        }
+
+        #code_content::-webkit-scrollbar-track {
+            background-color: #2d2d2d;
+        }
+
+        textarea:hover {
+            border: 1px solid #007acc;
+        }
+
+        textarea:focus {
+            outline: none;
+            border: 1px solid #007acc;
+        }
+
+        footer {
+            background-color: #2d2d2d;
+            color: #d4d4d4;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            width: 100%;
+            border-top: 1px solid #3c3c3c;
+            box-sizing: border-box;
+        }
+
+        footer p {
+            margin: 0;
+            padding: 0;
+            line-height: 1.5em;
+        }
+
+        footer a {
+            color: #007acc;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .popup-content {
+            background-color: #fefefe;
+            margin: 20% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .loading-dots {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            background-color: #007acc;
+            border-radius: 50%;
+            animation: bounce 0.6s alternate infinite ease;
+            margin-right: 5px;
+        }
+
+        @keyframes bounce {
+            to {
+                transform: translateY(-15px);
+                opacity: 0.5;
+            }
+        }
+
+        #loading-wave {
+            display: flex;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-dots {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #007acc;
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .loading-dots:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        @media only screen and (max-width: 768px) {
+
+            main {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <header>
-        <h1>Code Generator 3</h1>
-        <p style="padding: 0 10px;">Welcome to our Code Generator! Enter your code prompt below, and specify the programming language you desire. Let our AI-powered engine craft the code for you.</p>
+        <div class="header-content">
+            <h1>Code Generator</h1>
+        </div>
     </header>
     <main>
-        <section class="generator">
-            <h2>Generate Code</h2>
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
-            <form action="/search" method="post">
-                <input type="text" name="search_query" placeholder="Enter Code Prompt">
-                <button type="submit">Generate</button>
+        <section class="editor-container">
+            <form id="converter-form">
+                <div class="button-container">
+                    <h2>Enter Prompt:</h2>
+                    <button type="submit" class="run-button">Generate</button>
+                </div>
+                <textarea type="text" name="search_query" id="search_query"
+                    placeholder="Enter Code Prompt..."></textarea>
             </form>
         </section>
-        <section class="about">
-            <h2>About</h2>
-            <p>Welcome to our Code Generator! Whether you're looking for inspiration or just want to explore the power of AI-generated Code, you've come to the right place. Simply enter a Code prompt and select your desired programming language, and let our advanced algorithms do the rest.</p>
+        <section id="result" class="result-container">
+            <div class="button-container">
+                <h1>Output :</h1>
+                <div id="loading-wave">
+                    <div class="loading-dots"></div>
+                    <div class="loading-dots"></div>
+                    <div class="loading-dots"></div>
+                    <div class="loading-dots"></div>
+                </div>
+                <button id="copy_button" class="copy-button" style="display: none;">Copy</button>
+            </div>
+            <pre id="code_content"></pre>
         </section>
     </main>
     <footer>
-        <p>&copy; 2024 Code Generator. All rights reserved.</p>
+        <p>Welcome to our Code Generator! Whether you're looking for inspiration or just want to explore the power of
+            AI-generated Code, you've come to the right place. Simply enter a Code prompt and select your desired
+            programming language, and let our advanced algorithms do the rest.</p>
+        <p>© 2024 Code Generator. All rights reserved.</p>
     </footer>
+    <script>
+        $(document).ready(function () {
+            $('#converter-form').on('submit', function (event) {
+                event.preventDefault();
+                const searchQuery = $('#search_query').val();
+                $.ajax({
+                    url: '/search',
+                    type: 'POST',
+                    data: { search_query: searchQuery },
+                    beforeSend: function () {
+                        $('#loading-wave').show();
+                        $('#code_content').text('');
+                        $('#copy_button').hide();
+                    },
+                    success: function (data) {
+                        $('#loading-wave').hide();
+                        $('#error').text('');
+                        $('#code_content').text(data.code_content);
+                        $('#copy_button').show();
+                    },
+                    error: function (xhr) {
+                        $('#loading-wave').hide();
+                        const error = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred. Please try again.";
+                        $('#error').text(error);
+                        $('#code_content').text('');
+                        $('#copy_button').hide();
+                    }
+                });
+            });
+            $('#copy_button').on('click', function () {
+                const codeContent = $('#code_content').text();
+                navigator.clipboard.writeText(codeContent).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            });
+        });
+    </script>
 </body>
+
 </html>
