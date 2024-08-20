@@ -4,8 +4,8 @@ import logging
 import subprocess
 from flask_cors import CORS 
 
-CORS(app)
 app = Flask(__name__, static_url_path='/static')
+CORS(app)
 logging.basicConfig(level=logging.DEBUG)
 
 API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBfaJZk-ljrgGrnmOeg4wrQ3raKdhQnF1c"
