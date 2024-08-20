@@ -2,7 +2,9 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import logging
 import subprocess
+from flask_cors import CORS 
 
+CORS(app)
 app = Flask(__name__, static_url_path='/static')
 logging.basicConfig(level=logging.DEBUG)
 
